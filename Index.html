@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Favicon using an inline SVG emoji -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+    
+    <style>
+      body {
+        background-color: #f4f4f9;
+        color: #333;
+        font-family: sans-serif;
+        text-align: center;
+        padding-top: 80px;
+      }
+      h1 {
+        font-size: 60px;
+        margin-bottom: 10px;
+        color: #2c3e50;
+      }
+      .app-title {
+        font-size: 24px;
+        font-weight: bold;
+        color: #3498db;
+        margin-bottom: 15px;
+      }
+      .controls {
+        margin-bottom: 20px;
+      }
+      label {
+        font-size: 16px;
+        margin-right: 5px;
+      }
+      input[type="number"] {
+        padding: 8px;
+        font-size: 16px;
+        width: 60px;
+        text-align: center;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+      .button-group {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      button {
+        padding: 12px 16px;
+        font-size: 15px;
+        cursor: pointer;
+        background-color: #3498db;
+        color: white;
+        border: none;
+        border-radius: 8px;
+      }
+      .reset-btn {
+        background-color: #e74c3c;
+      }
+      button:active {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app-title">iscolamech</div>
+    
+    <h1 id="counter">0</h1>
+
+    <div class="controls">
+      <label for="stepValue">Step:</label>
+      <input type="number" id="stepValue" value="1" min="1">
+    </div>
+
+    <div class="button-group">
+      <button onclick="decrease()">- Decrease</button>
+      <button class="reset-btn" onclick="resetCount()">Reset</button>
+      <button onclick="increase()">+ Increase</button>
+    </div>
+
+    <script>
+      let count = localStorage.getItem("savedCount") ? Number(localStorage.getItem("savedCount")) : 0;
+
+      const counterDisplay = document.getElementById("counter");
+      const stepInput = document.getElementById("stepValue");
+      counterDisplay.innerText = count;
+
+      function playClickSound() {
+        try {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          const audioCtx = new AudioContext();
+          const oscillator = audioCtx.createOscillator();
+          const gainNode = audioCtx.createGain();
+
+          oscillator.type = "sine";
+          oscillator.frequency.setValueAtTime(400, audioCtx.currentTime);
+          gainNode.gain.setValueAtTime(0.05, audioCtx.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
+
+          oscillator.connect(gainNode);
+          gainNode.connect(audioCtx.destination);
+
+          oscillator.start();
+          oscillator.stop(audioCtx.currentTime + 0.08);
+        } catch (e) {}
+      }
+
+      function updateAndSave() {
+        counterDisplay.innerText = count;
+        localStorage.setItem("savedCount", count);
+        playClickSound();
+      }
+
+      function getStep() {
+        let val = Number(stepInput.value);
+        return isNaN(val) || val <= 0 ? 1 : val;
+      }
+
+      function increase() {
+        count = count + getStep();
+        updateAndSave();
+      }
+
+      function decrease() {
+        count = count - getStep();
+        updateAndSave();
+      }
+
+      function resetCount() {
+        count = 0;
+        updateAndSave();
+      }
+    </script>
+  </body>
+</html>
